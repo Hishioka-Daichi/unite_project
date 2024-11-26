@@ -128,7 +128,7 @@ def register_player2(request):
 import random
 from django.http import JsonResponse
 from .models import Player, Pokemon
-
+from collections import Counter
 def random_pick(request):
     if request.method == "POST":
         # フォームから送信された選択されたプレイヤーのIDを取得
@@ -214,24 +214,51 @@ def random_pick(request):
                 results[support_player.id] = f"{support_player.name}: {support_pokemon.name}"
                 results[tank_player.id] = f"{tank_player.name}: {tank_pokemon.name}"
 
-                # 残りのプレイヤーへのポケモン選定
-                remaining_players = [player for player in players if player != support_player and player != tank_player]
-                for player in remaining_players:
-                    available_pokemons = player.pokemons.all()
-                    # attack, balance, speedのタイプを持つポケモンを選ぶ
-                    valid_pokemons = [pokemon for pokemon in available_pokemons if any(
-                        ptype.name in ["attack", "balance", "speed","defense"] for ptype in pokemon.types.all())]
+                MAX_RETRIES = 10
 
-                    # 重複しないポケモンを選ぶ
-                    valid_pokemons = [pokemon for pokemon in valid_pokemons if pokemon not in selected_pokemons]
+                for attempt in range(MAX_RETRIES):
+                    # 残りのプレイヤーのみに対して結果を再構築
+                    temp_results = {}
+                    temp_selected_pokemons = selected_pokemons.copy()  # 既存の選択済みポケモンをコピー
+
+                    # 残りのプレイヤーへのポケモン選定
+                    remaining_players = [player for player in players if player.id not in results.keys()]
+                    for player in remaining_players:
+                        available_pokemons = player.pokemons.all()
+                        # attack, balance, speedのタイプを持つポケモンを選ぶ
+                        valid_pokemons = [pokemon for pokemon in available_pokemons if any(
+                            ptype.name in ["attack", "balance", "speed"] for ptype in pokemon.types.all())]
+
+                        # 重複しないポケモンを選ぶ
+                        valid_pokemons = [pokemon for pokemon in valid_pokemons if pokemon not in temp_selected_pokemons]
+                        
+                        if valid_pokemons:
+                            random_pokemon = random.choice(valid_pokemons)
+                            temp_selected_pokemons.add(random_pokemon)
+                            temp_results[player.id] = f"{player.name}: {random_pokemon.name}"
+                        else:
+                            temp_results[player.id] = f"{player.name}: マッチするポケモンが見つかりませんでした。"
+
+                    # 全ての結果を一時的に統合
+                    combined_results = {**results, **temp_results}
+                    combined_selected_pokemons = temp_selected_pokemons
+
+                    # 選ばれたポケモンのタイプを集計
+                    all_selected_types = []
+                    for pokemon in combined_selected_pokemons:
+                        all_selected_types.extend([ptype.name for ptype in pokemon.types.all()])
                     
-                    if valid_pokemons:
-                        random_pokemon = random.choice(valid_pokemons)
-                        selected_pokemons.add(random_pokemon)
-                        results[player.id] = f"{player.name}: {random_pokemon.name}"
-                    else:
-                        results[player.id] = f"{player.name}: マッチするポケモンが見つかりませんでした。"
-                sorted_results = {player.name: results[player.id] for player in players if player.id in results}
+                    type_counts = Counter(all_selected_types)
+                    # 同じタイプが3匹以上の場合、やり直し
+                    if all(count < 3 for count in type_counts.values()):
+                        # 結果を確定
+                        results = combined_results
+                        selected_pokemons = combined_selected_pokemons
+                        break  # 条件を満たしている場合ループを抜ける
+                else:
+                    # 最大リトライ回数に達した場合
+                                    results = {"error": "サポート担当またはタンク担当の選出に失敗しました。"}
+                sorted_results = results
             else:
                 results = {"error": "サポート担当またはタンク担当の選出に失敗しました。"}
                 sorted_results = results
