@@ -38,8 +38,6 @@ except ImportError:
 
 
 
-ALLOWED_HOSTS = ['192.168.65.179','127.0.0.1']
-
 
 # Application definition
 
