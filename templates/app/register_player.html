@@ -1,0 +1,15 @@
+{% extends "base/app_base.html" %}
+{% block body %}
+
+<h2>プレイヤー登録</h2>
+
+<!-- プレイヤー登録フォーム -->
+<form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">登録</button>
+</form>
+
+
+
+{% endblock %}

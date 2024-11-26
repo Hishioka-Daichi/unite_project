@@ -1,0 +1,431 @@
+
+/* 全体の基準フォントサイズ */
+body {
+    font-size: 18px; /* デフォルト16pxから少し大きく */
+    line-height: 1.6; /* 行間を広げて読みやすく */
+    font-family: 'Arial', sans-serif; /* 読みやすいフォント */
+    color: #333; /* 高コントラストの文字色 */
+    margin: 0;
+    padding: 0;
+}
+
+/* フッター全体のスタイル */
+.site-footer {
+    background-color: #2a3f8d; /* 暗めの青 */
+    color: #ffffff;           /* 白文字 */
+    text-align: center;       /* 中央揃え */
+    padding: 15px 10px;       /* 上下左右の余白 */
+    font-size: 14px;          /* フォントサイズ */
+    position: relative;       /* デフォルトの位置 */
+    border-top: 2px solid #1e2f6f; /* 上部に少し濃い線を追加 */
+}
+
+/* フッター内のテキストのスタイル */
+.site-footer p {
+    margin: 0;                /* 余計な余白を除去 */
+    font-weight: 400;         /* 通常の太さ */
+}
+
+
+/* 各セクションの余白 */
+section, div, p {
+    margin-bottom: 15px; /* 各要素間の余白を統一 */
+}
+
+/* ヘッダー、ボタンのフォントサイズ */
+h1, h2, h3 {
+    font-size: 1.5em; /* タイトルのフォントサイズを調整 */
+    margin-bottom: 10px;
+}
+
+button {
+    font-size: 1em; /* ボタン文字を少し大きく */
+}
+
+
+
+/* モーダルのスタイル */
+.modal {
+    width: 500px;
+    max-height: 80vh;
+    overflow: hidden;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    border-radius: 8px;
+}
+
+/* フォーム内のセクション */
+.form-section {
+    margin-bottom: 20px;
+}
+
+/* タブのスタイル */
+.tab-container {
+    margin-bottom: 10px;
+}
+
+.tab-list {
+    display: flex;
+    justify-content: space-between;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-bottom: 2px solid #ddd;
+}
+
+.tab-item {
+    margin: 0 5px;
+}
+
+.tab-link, .edit-tab-link {
+    display: block;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px 5px 0 0;
+    background: #b6b6b6;
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    transition: background 0.2s, color 0.2s;
+}
+
+.tab-link.active {
+    background: #fff;
+    color: #000;
+    border-bottom: none;
+}
+
+.tab-link:hover {
+    background: #ffffff;
+    color: #000;
+}
+
+/* コンテンツエリア */
+.tab-contents {
+    overflow-y: auto;
+    max-height: 50vh;
+}
+
+.tab-content,.edit-tab-content {
+    display: none;
+    padding: 10px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* 初期表示のタブコンテンツ */
+.tab-content.active {
+    display: block;
+}
+
+/* ポケモンリスト */
+.pokemon-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 5px;
+    border: 1px solid #ddd;
+    background: #fff;
+    border-radius: 5px;
+    max-height: 20vh;
+}
+
+.pokemon-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pokemon-item input {
+    margin-right: 5px;
+}
+
+
+
+
+/* ヘッダー画像 */
+header {
+    width: 100%;
+    text-align: center;
+}
+
+.header-image {
+    max-width: 100%;
+    height: auto;
+}
+
+/* 全体のフォント設定 */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f7fc;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+/* インフォメーションテキスト */
+.intro-text {
+    font-size: 1.2rem;
+    margin: 20px;
+    text-align: center;
+}
+
+/* ボタン */
+/* 一般的なボタンのスタイル調整 */
+.button {
+    display: inline-block;
+    padding: 10px 14px; /* パディングを拡大 */
+    font-size: 12px; /* フォントサイズを大きく */
+    font-weight: bold; /* 文字を強調 */
+    background: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 8px; /* 丸みを少し大きく */
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.3s, transform 0.2s; /* ホバー時のアニメーション */
+}
+
+.button:hover {
+    background: #0056b3; /* ホバー時の色変更 */
+    transform: scale(1.00); /* ボタンを少し拡大 */
+}
+
+.button-close {
+    background: #6c757d;
+}
+
+.button-close:hover {
+    background: #5a6268;
+}
+
+/* 特定のボタンの追加スタイル（例: 「プレイヤーを登録する」） */
+#open-modal {
+    display: inline-block;
+    padding: 16px 24px; /* パディングを拡大 */
+    font-size: 18px; /* フォントサイズを大きく */
+    font-weight: bold; /* 文字を強調 */
+    background: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 8px; /* 丸みを少し大きく */
+    cursor: pointer;
+    text-align: center;
+}
+
+#random-pick {
+    display: inline-block;
+    padding: 16px 22px; /* パディングを拡大 */
+    font-size: 22px; /* フォントサイズを大きく */
+    font-weight: bold; /* 文字を強調 */
+    background: #0ad7a7;
+    color: #fff;
+    border: none;
+    border-radius: 8px; /* 丸みを少し大きく */
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.3s, transform 0.2s; /* ホバー時のアニメーション */
+}
+
+/* ポケモンリスト */
+.pokemon-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.pokemon-item input {
+    margin-right: 10px;
+}
+
+
+
+/* 全体コンテナの余白を調整 */
+.content-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px;
+    font-family: Arial, sans-serif;
+}
+
+/* プレイヤーリストのスタイル */
+.player-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    
+    
+}
+
+/* プレイヤーリストのスタイル調整 */
+#player-list {
+    max-width: 500px; /* 横幅を最大600pxに制限 */
+    margin: 20px ; /* 上下に余白を追加、左右の余白はなし */
+    padding: 0 3px;
+    background: #f9f9f9; /* 背景色を少し明るくして区切り感を出す */
+    border: 1px solid #ddd; /* 外枠 */
+    border-radius: 8px; /* 角を丸める */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 軽い影を追加 */
+    overflow: hidden; /* 内容がはみ出さないようにする */
+}
+
+/* プレイヤーリスト内の個々のプレイヤー */
+.player {
+    display: flex;
+    justify-content: space-between; /* 左に名前、右にボタン */
+    align-items: center; /* 垂直方向を中央揃え */
+    padding: 6px 10px;
+    border-bottom: 1px solid #ddd; /* 区切り線を追加 */
+    box-sizing: border-box;
+    margin-top: 5px;
+    margin-bottom: 5px; 
+}
+
+/* 'hidden' クラスを持っていない要素に対してだけ border-bottom を非表示 */
+.player:last-child {
+    border-bottom: none; /* 最後の要素には区切り線を表示しない */
+}
+
+/* 編集ボタンの調整 */
+.edit-player-button {
+    padding: 6px 12px; /* サイズ感を調整 */
+    font-size: 14px; /* フォントサイズ */
+    background: #2d2ac8;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.edit-player-button:hover {
+    background: #0f00b3; /* ホバー時の色変更 */
+}
+
+/* リスト全体を左揃えにする */
+#player-list .player label {
+    text-align: left;
+}
+
+/* 結果表示部分のスタイル */
+#results {
+    background-color: #f9f9f9; /* ソフトな背景色 */
+    border: 2px solid #007BFF; /* 強調するためのボーダー */
+    border-radius: 8px; /* 角を丸める */
+    padding: 20px; /* 内部余白を追加 */
+    margin: 20px 0; /* 上下余白を追加 */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* 立体感のあるシャドウ */
+}
+
+/* 結果テキストのスタイル */
+#results p {
+    font-size: 18px; /* 少し大きなフォント */
+    font-weight: bold; /* 太字で強調 */
+    color: #333; /* 適度なコントラストの文字色 */
+    margin: 10px 0; /* 各結果間に余白 */
+    line-height: 1.6; /* 行間を広くして読みやすく */
+}
+
+/* 強調したテキスト用（オプション） */
+#results p span {
+    color: #007BFF; /* プレイヤー名やポケモン名をさらに強調 */
+}
+
+
+
+
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    #player-list {
+        max-width: 90%;
+        margin: 10px auto; /* 上下に少し余白を追加 */
+    }
+    .player {
+        padding: 5px 8px;
+    }
+    .edit-player-button {
+        font-size: 13px;
+        padding: 5px 10px;
+    }
+
+    .modal {
+        width: 80%;
+    }
+}
+
+@media (max-width: 480px) {
+    #player-list {
+        max-width: 100%;
+        margin: 10px auto;
+    }
+    .player {
+        padding: 5px 8px; /* 横方向のパディングを縮小 */
+    }
+
+    .modal {
+        width: 90%;
+    }
+}
+
+
+
+/* レスポンシブ対応 */
+@media screen and (max-width: 768px) {
+    body {
+        font-size: 14px; /* スマホで適切なサイズに調整 */
+    }
+    
+    h1, h2, h3 {
+        font-size: 1.2em; /* スマホでの見た目を最適化 */
+    }
+
+    button {
+        font-size: 1em; /* スマホでもボタンが見やすい */
+    }
+        /* インフォメーションテキスト */
+    .intro-text {
+        font-size: 0.9rem;
+        margin: 0px;
+        text-align: left;
+    }
+    #random-pick {
+        padding: 14px 14px; /* パディングを拡大 */
+        font-size: 20px; /* フォントサイズを大きく */
+    }
+    .content-container {
+        padding: 20px;
+    }
+    /* モーダルのサイズ調整 */
+    .modal {
+        width: 90%; /* スマホでほぼ全画面 */
+        padding: 10px;
+    }
+
+    .tab-link, .edit-tab-link {
+        padding: 4px 6px;
+        font-size: 12px;
+
+    }
+    .tab-list {
+        display: flex;
+        justify-content: flex-start;
+        margin: 4px;
+    }
+
+
+}
+

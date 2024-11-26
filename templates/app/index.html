@@ -1,0 +1,397 @@
+{% extends "base/app_base.html" %}
+{% block body %}
+<!-- ヘッダー画像 -->
+<header>
+    {% load static %}
+    <img src="{% static "app/picture/unite.jpeg" %}" alt="Header Image" class="header-image">
+</header>
+<div class="content-container">
+    <p class="intro-text">Pokemon UNITEのパーティ編成をランダムに決定できます。
+        一緒に遊ぶプレイヤーと使えるポケモンを登録してご利用ください！
+    </p>
+    <br>
+    <button id="open-modal" class="button">プレイヤーを登録する</button>
+
+    <!-- モーダル: プレイヤー登録 -->
+    <div id="modal" class="modal" style="display: none;">
+        <h2>プレイヤー登録</h2>
+        <form id="player-form" method="POST" action="{% url 'app:register_player2' %}">
+            {% csrf_token %}
+            <div class="form-section">
+                <label for="player-name">プレイヤー名:</label>
+                {{ form.name }}
+            </div>
+            <p>ポケモンのタイプは実際の役割を元に設定しているため、ゲーム上のタイプとは異なる場合があります。</p>
+
+            <!-- タブ切り替え部分 -->
+            <div id="tab-container" class="tab-container">
+                <ul id="tabs" class="tab-list">
+                    {% for type_name, pokemons in pokemon_by_type.items %}
+                    <li class="tab-item">
+                        <a href="#tab-{{ forloop.counter }}" class="tab-link">{{ type_name }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- タブごとのポケモンリスト -->
+            <div id="tab-contents" class="tab-contents">
+                {% for type_name, pokemons in pokemon_by_type.items %}
+                <div id="tab-{{ forloop.counter }}" class="tab-content">
+                    <div class="pokemon-list">
+                        {% for pokemon in pokemons %}
+                        <label class="pokemon-item">
+                            <input type="checkbox" id="pokemon-{{ pokemon.id }}" name="pokemons" value="{{ pokemon.id }}">
+                            {{ pokemon.name }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="modal-actions">
+                <button type="submit" class="button">登録</button>
+                <button type="button" id="close-modal" class="button button-close">閉じる</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 編集モーダル -->
+    <div id="edit-modal" class="modal" style="display: none;">
+        <h2>プレイヤー編集</h2>
+        <form id="edit-player-form" method="POST" action="{% url 'app:edit_player' %}">
+            {% csrf_token %}
+            <input type="hidden" id="edit-player-id" name="player_id">
+
+            <!-- プレイヤー名表示 -->
+            <h3 id="edit-player-name-display">プレイヤー名: </h3>
+            <p>ポケモンのタイプは実際の役割を元に設定しているため、ゲーム上のタイプとは異なる場合があります。</p>
+            <!-- タブ切り替え部分 -->
+            <div id="edit-tab-container" class="tab-container">
+                <ul id="edit-tabs" class="tab-list">
+                    {% for type_name, pokemons in pokemon_by_type.items %}
+                    <li class="tab-item">
+                        <a href="#edit-tab-{{ forloop.counter }}" class="tab-link">{{ type_name }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- タブごとのポケモンリスト -->
+            <div id="edit-tab-contents" class="tab-contents">
+                {% for type_name, pokemons in pokemon_by_type.items %}
+                <div id="edit-tab-{{ forloop.counter }}" class="tab-content">
+                    <div class="pokemon-list">
+                        {% for pokemon in pokemons %}
+                        <label class="pokemon-item">
+                            <input type="checkbox" id="edit-pokemon-{{ pokemon.id }}" class="edit-pokemon-checkbox" name="pokemons" value="{{ pokemon.id }}">
+                            {{ pokemon.name }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="modal-actions">
+                <button type="submit" class="button">保存</button>
+                <button type="button" id="close-edit-modal" class="button button-close">閉じる</button>
+            </div>
+        </form>
+    </div>
+
+    <h2>今日のプレイヤーを選択する</h2>
+    <div id="player-list" class="player-list">
+        {% for player in players %}
+        <div class="player" data-user-id="{{ player.user_id }}" data-id="{{ player.id }}">
+            <label>
+                <input type="checkbox" class="player-checkbox" value="{{ player.id }}">
+                <span class="player-name">{{ player.name }}</span>
+            </label>
+            <button class="edit-player-button" data-id="{{ player.id }}" data-name="{{ player.name }}">編集</button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <br>
+    <label>
+        <input type="checkbox" id="toggle-check"> チームバランスを考慮する
+    </label>
+    <br>
+    <p>サポートとタンクが各1匹以上選択され、同じタイプのポケモンが3匹以上選ばれなくなります。
+        <br>人数が少ない場合はおすすめしません。</p>
+    <button id="random-pick" class="button">ポケモンをランダムピック！</button>
+    <br>
+    <div id="results"></div>
+</div>
+
+
+
+
+
+    <script>
+        // モーダル開閉用スクリプト
+        $("#open-modal").on("click", function() {
+            $("#modal").show();
+        });
+        $("#close-modal").on("click", function() {
+            $("#modal").hide();
+            document.getElementById("player-form").reset();
+        });
+
+        $("#close-edit-modal").on("click", function() {
+            $("#edit-modal").hide();
+        });
+
+
+        // プレイヤー登録フォーム (Ajax)
+        $("#player-form").on("submit", function (event) {
+            event.preventDefault();
+
+            // ローカルストレージから user_id を取得
+            const userId = localStorage.getItem("user_id");
+
+            if (!userId) {
+                alert("ユーザーIDが見つかりません。リロードしてください。");
+                return;
+            }
+
+            const formData = $(this).serializeArray(); // フォームデータを配列形式で取得
+            formData.push({ name: "user_id", value: userId }); // user_id を追加
+
+            $.ajax({
+                url: $(this).attr("action"),
+                type: "POST",
+                data: formData,
+                success: function (response) {
+                    alert("プレイヤーが登録されました！");
+                    $("#modal").hide();
+                    document.getElementById("player-form").reset();
+
+                    const newPlayer = response.player;
+
+                    // 動的にプレイヤーリストに追加
+                    $("#player-list").append(`
+                        <div class="player">
+                            <label>
+                                <input type="checkbox" class="player-checkbox" value="${newPlayer.id}">
+                                <span class="player-name" data-id="${newPlayer.id}">${newPlayer.name}</span>
+                            </label>
+                            <button class="edit-player-button" data-id="${newPlayer.id}" data-name="${newPlayer.name}">編集</button>
+                        </div>
+                    `);
+                },
+                error: function () {
+                    alert("エラーが発生しました。");
+                },
+            });
+        });
+
+        // プレイヤー編集フォーム (Ajax)
+        $("#edit-player-form").on("submit", function (event) {
+            event.preventDefault();
+
+            // チェックされたポケモンのIDを収集
+            const selectedPokemons = [];
+            $(".edit-pokemon-checkbox:checked").each(function () {
+                selectedPokemons.push($(this).val());
+            });
+
+            // フォームデータにポケモンIDを追加
+            const formData = $(this).serializeArray(); // フォームデータを配列形式で取得
+            formData.push({ name: "pokemons", value: selectedPokemons.join(",") }); // 選択されたポケモンIDを追加
+
+            // Ajaxリクエスト
+            $.ajax({
+                url: $(this).attr("action"),
+                type: "POST",
+                data: formData,
+                success: function (response) {
+                    alert("プレイヤー情報が更新されました！");
+                    const updatedPlayer = response.player;
+
+                    // プレイヤー名を更新
+                    $(`.player-name[data-id="${updatedPlayer.id}"]`).text(updatedPlayer.name);
+                    $("#edit-modal").hide();
+                },
+                error: function () {
+                    alert("エラーが発生しました。");
+                },
+            });
+        });
+
+
+        // ポケモンランダムピック (Ajax)
+        $("#random-pick").on("click", function () {
+            const selectedPlayers = $(".player-checkbox:checked").map(function () {
+                return $(this).val();
+            }).get();
+
+            const isChecked = $("#toggle-check").is(":checked");
+
+            if (selectedPlayers.length === 0) {
+                alert("プレイヤーを選択してください！");
+                return;
+            }
+
+            $.ajax({
+                url: "{% url 'app:random_pick' %}",
+                type: "POST",
+                data: {
+                    "players[]": selectedPlayers,
+                    toggle: isChecked,
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+                },
+                success: function (response) {
+                    $("#results").empty();
+                    const results = response.results;
+                    for (const playerName in results) {
+                        $("#results").append(
+                            `<p> ${results[playerName]}</p>`
+                        );
+                    }
+                },
+                error: function () {
+                    alert("エラーが発生しました。");
+                },
+            });
+        });
+
+        // ユーザーIDをlocalStorageから取得
+        let currentUserId = localStorage.getItem('user_id');
+
+        // すべてのプレイヤーをチェックし、現在のuser_idと一致しないものを非表示にする
+        document.addEventListener('DOMContentLoaded', function() {
+            if (currentUserId) {
+                const players = document.querySelectorAll('.player');
+                players.forEach(function(player) {
+                    // プレイヤーのuser_idとcurrentUserIdを比較
+                    const playerUserId = player.getAttribute('data-user-id');
+                    if (playerUserId !== currentUserId) {
+                        player.style.display = 'none'; // 一致しないプレイヤーは非表示
+                    }
+
+                });
+            }
+        });
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+    // === 登録モーダル用 ===
+    const tabs = document.querySelectorAll(".tab-link");
+    const contents = document.querySelectorAll(".tab-content");
+    
+    tabs.forEach((t) => t.classList.remove("active"));
+    // 初期状態で最初のタブをアクティブ化
+    if (tabs.length > 0) {
+        tabs[0].classList.add("active");
+        contents[0].classList.add("active");
+    }
+
+    // タブ切り替え
+    tabs.forEach((tab, index) => {
+        tab.addEventListener("click", function (event) {
+            event.preventDefault();
+
+            // すべてのタブとコンテンツを非アクティブ化
+            tabs.forEach((t) => t.classList.remove("active"));
+            contents.forEach((content) => content.classList.remove("active"));
+
+            // クリックされたタブをアクティブ化
+            tab.classList.add("active");
+            contents[index].classList.add("active");
+        });
+    });
+
+    // チェックボックスの同期
+    document.querySelectorAll("input[type='checkbox']").forEach((checkbox) => {
+        checkbox.addEventListener("change", function () {
+            const pokemonId = this.id;
+            const isChecked = this.checked;
+
+            // 同じポケモンIDを持つ他のチェックボックスを同期
+            document.querySelectorAll(`input[id='${pokemonId}']`).forEach((box) => {
+                box.checked = isChecked;
+            });
+        });
+    }) 
+    })
+
+    document.addEventListener("DOMContentLoaded", function () {
+    // === 編集モーダル用 ===
+    const editTabs = document.querySelectorAll(".tab-link");
+    const editContents = document.querySelectorAll(".tab-content");
+
+    // 初期状態で最初のタブをアクティブ化
+    
+    if (editTabs.length > 0) {
+        editTabs[5].classList.add("active");
+        editContents[5].classList.add("active");
+    }
+
+    // タブ切り替え
+    editTabs.forEach((tab, index) => {
+        tab.addEventListener("click", function (event) {
+            event.preventDefault();
+
+            // すべてのタブとコンテンツを非アクティブ化
+            editTabs.forEach((t) => t.classList.remove("active"));
+            editContents.forEach((content) => content.classList.remove("active"));
+
+            // クリックされたタブをアクティブ化
+            tab.classList.add("active");
+            editContents[index].classList.add("active");
+        });
+    });
+
+// 編集モーダルを開く処理 (イベント委譲を利用)
+$("#player-list").on("click", ".edit-player-button", function () {
+    const playerId = $(this).data("id");
+
+    // プレイヤーIDを設定
+    $("#edit-player-id").val(playerId);
+
+    // プレイヤーデータを取得して反映
+    fetch(`/app/get_player_data/${playerId}/`)
+        .then((response) => response.json())
+        .then((data) => {
+            // プレイヤー名を表示
+            $("#edit-player-name-display").text(`プレイヤー名: ${data.name}`);
+
+            // チェックボックスの状態をリセット
+            $(".edit-pokemon-checkbox").each(function () {
+                this.checked = false;
+            });
+
+            // 対象のポケモンにチェックを入れる
+            data.pokemons.forEach((pokemonId) => {
+                $(`.edit-pokemon-checkbox[value="${pokemonId}"]`).each(function () {
+                    this.checked = true;
+                });
+            });
+
+            // 編集モーダルを表示
+            $("#edit-modal").show();
+        })
+        .catch(() => {
+            alert("エラーが発生しました。");
+        });
+});
+
+// 編集モーダルを閉じる処理
+$("#close-edit-modal").on("click", function () {
+    $("#edit-modal").hide();
+});
+
+
+});
+
+
+
+
+
+
+    </script>
+
+{% endblock %}

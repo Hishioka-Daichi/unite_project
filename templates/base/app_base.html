@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>UNITE.random</title>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'app/css/base.css' %}">
+    </head>
+    <body>
+        <script>
+            // CSRFトークンをAjaxにセットアップ
+            $.ajaxSetup({
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}"
+                }
+            });
+
+
+            function assignUniqueUserId() {
+                let user = localStorage.getItem('user_id');
+                if (!user) {
+                    // サーバーから一意の user_id を取得
+                    $.ajax({
+                        url: "{% url 'app:assign_user_id' %}",  // サーバー側で定義した URL
+                        type: "GET",
+                        success: function (response) {
+                            localStorage.setItem('user_id', response.user_id);  // ローカルストレージに保存
+                            console.log("User ID assigned:", response.user_id);
+                        },
+                        error: function () {
+                            alert("ユーザーIDを取得できませんでした。");
+                        },
+                    });
+                } else {
+                    console.log("User ID already assigned:", user);
+                }
+            }
+
+            // ページロード時に一意な user_id を割り当てる
+            assignUniqueUserId();
+ 
+          
+        </script>
+        {% block body %}
+        {% endblock %}
+    </body>
+    <footer class="site-footer">
+        <p>&copy; 2024 Hishi</p>
+    </footer>
+    
+</html>
+
