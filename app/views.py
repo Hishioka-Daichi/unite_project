@@ -220,7 +220,7 @@ def random_pick(request):
                     available_pokemons = player.pokemons.all()
                     # attack, balance, speedのタイプを持つポケモンを選ぶ
                     valid_pokemons = [pokemon for pokemon in available_pokemons if any(
-                        ptype.name in ["attack", "balance", "speed"] for ptype in pokemon.types.all())]
+                        ptype.name in ["attack", "balance", "speed","defense"] for ptype in pokemon.types.all())]
 
                     # 重複しないポケモンを選ぶ
                     valid_pokemons = [pokemon for pokemon in valid_pokemons if pokemon not in selected_pokemons]
