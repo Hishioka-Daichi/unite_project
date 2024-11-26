@@ -27,7 +27,7 @@ try:
     from .local_settings import *
     DEBUG = True
     FRONTEND_URL = 'http://127.0.0.1:8000/'
-    ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = ['192.168.65.179','127.0.0.1']
 
 except ImportError:
     DEBUG = False
@@ -36,8 +36,7 @@ except ImportError:
 
 
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+
 
 ALLOWED_HOSTS = ['192.168.65.179','127.0.0.1']
 
