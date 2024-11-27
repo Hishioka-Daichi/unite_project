@@ -119,7 +119,7 @@
         <input type="checkbox" id="toggle-check"> チームバランスを考慮する
     </label>
     <br>
-    <p>サポートとタンクが各1匹選択されます。
+    <p>サポートとタンクが各1匹選択され、同じタイプのポケモンが3体以上選択されなくなります。
         人数が少ない場合はおすすめしません。</p>
     <button id="random-pick" class="button">ポケモンをランダムピック！</button>
     <br>
@@ -273,6 +273,14 @@
                     }
 
                 });
+            }
+            else{
+                const players = document.querySelectorAll('.player');
+                players.forEach(function(player) {
+                    const playerUserId = player.getAttribute('data-user-id');
+                    player.style.display = 'none'; // 一致しないプレイヤーは非表示
+
+                })
             }
         });
 
